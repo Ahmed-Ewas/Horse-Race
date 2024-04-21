@@ -49,6 +49,9 @@ public class Horse
     {
         return horseName;
     }
+    public void setName(String name) {
+        horseName = name;
+    }
 
     public char getSymbol()
     {
@@ -74,7 +77,7 @@ public class Horse
     public void setConfidence(double newConfidence) {
         if (newConfidence < 0) {
             this.horseConfidence = 0;
-        } else if (newConfidence > 1) {
+        } else if (newConfidence >= 1) {
             this.horseConfidence = 1;
         } else {
             this.horseConfidence = newConfidence;
