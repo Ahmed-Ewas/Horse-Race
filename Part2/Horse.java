@@ -13,26 +13,30 @@ public class Horse
     private int distance_travelled;
     private boolean fallen;
     private double horseConfidence;
+    private long finishTime;
+    private Race race;
+    private int wins;
+    private int loses;
 
     //Constructor of class Horse
     /**
      * Constructor for objects of class Horse
      */
-    public Horse(char horseSymbol, String horseName, double horseConfidence)
+    public Horse(char horseSymbol, String horseName, double horseConfidence, Race race)
     {
         this.horseSymbol = horseSymbol;
         this.horseName = horseName;
         this.horseConfidence = horseConfidence;
         this.distance_travelled = 0;
         this.fallen = false;
+        this.race = race;
     }
-
-
 
     //Other methods of class Horse
     public void fall()
     {
         fallen = true;
+        finishTime = System.currentTimeMillis();
     }
 
     public double getConfidence()
@@ -72,6 +76,14 @@ public class Horse
     public void moveForward()
     {
         distance_travelled = distance_travelled + 1;
+        if(distance_travelled == race.getRaceLength())
+        {
+            finishTime = System.currentTimeMillis();
+        }
+    }
+    public long getFinishTime()
+    {
+        return finishTime;
     }
 
     public void setConfidence(double newConfidence) {
@@ -88,27 +100,31 @@ public class Horse
     {
         horseSymbol = newSymbol;
     }
+    public void increaseWins()
+    {
+        wins++;
+    }
+    public void increaseLoses()
+    {
+        loses++;
+    }
+    public double getWinRatio() {
+        int totalRaces = wins + loses;
+        if (totalRaces == 0) {
+            return 0;
+        }
+        return (double) wins / totalRaces;
+    }
+    public int getWins()
+    {
+        return wins;
+    }
+    public int getLosses()
+    {
+        return loses;
+    }
     public static void main(String[] args)
     {
-        Horse horse = new Horse('*', "ahmed", 0.2);
-        //Test 1
-        horse.moveForward();
-        horse.moveForward();
-        System.out.println(horse.getDistanceTravelled()+"m");
-        horse.goBackToStart();
-        System.out.println(horse.getDistanceTravelled()+"m");
 
-        System.out.println();
-        //Test 2
-        horse.setConfidence(1.8);
-        horse.setSymbol('#');
-        System.out.println(horse.getConfidence());
-        System.out.println(horse.getSymbol());
-
-        System.out.println();
-        //Test 3
-        System.out.println(horse.hasFallen());
-        horse.fall();
-        System.out.println(horse.hasFallen());
     }
 }

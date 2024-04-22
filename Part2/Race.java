@@ -18,7 +18,7 @@ public class Race
     private Horse lane3Horse;
     private HashMap<Horse, Double> map = new HashMap<>();
     private JTextArea textArea;
-
+    private long startTime;
     /**
      * Constructor for objects of class Race
      * Initially there are no horses in the lanes
@@ -36,6 +36,9 @@ public class Race
     public HashMap<Horse, Double> getMap()
     {
         return this.map;
+    }
+    public void setRaceLength(int length) {
+        this.raceLength = length;
     }
 
     /**
@@ -73,6 +76,7 @@ public class Race
     public void startRace()
     {
         //declare a local variable to tell us when the race is finished
+        startTime = System.currentTimeMillis();
         boolean finished = false;
         String winner = null;
         //reset all the lanes (all horses not fallen and back to 0).
@@ -98,12 +102,15 @@ public class Race
             if (raceWonBy(lane1Horse)) {
                 winner = lane1Horse.getName();
                 lane1Horse.setConfidence(lane1Horse.getConfidence() + 0.1);
+                lane1Horse.increaseWins();
             } else if (raceWonBy(lane2Horse)) {
                 winner = lane2Horse.getName();
                 lane2Horse.setConfidence(lane2Horse.getConfidence() + 0.1);
+                lane2Horse.increaseWins();
             } else if (raceWonBy(lane3Horse)) {
                 winner = lane3Horse.getName();
                 lane3Horse.setConfidence(lane3Horse.getConfidence() + 0.1);
+                lane3Horse.increaseWins();
             }
             if(lane1Horse.hasFallen() && lane2Horse.hasFallen() && lane3Horse.hasFallen())
             {
@@ -115,6 +122,9 @@ public class Race
                 map.put(lane1Horse, lane1Horse.getConfidence());
                 map.put(lane2Horse, lane2Horse.getConfidence());
                 map.put(lane3Horse, lane3Horse.getConfidence());
+                lane1Horse.increaseLoses();
+                lane2Horse.increaseLoses();
+                lane3Horse.increaseLoses();
                 return;
             }
             if(finished)
@@ -131,6 +141,18 @@ public class Race
                 {
                     lane3Horse.setConfidence(lane3Horse.getConfidence() - 0.1);
                 }
+                if(!raceWonBy(lane1Horse))
+                {
+                    lane1Horse.increaseLoses();
+                }
+                if(!raceWonBy(lane2Horse))
+                {
+                    lane2Horse.increaseLoses();
+                }
+                if(!raceWonBy(lane3Horse))
+                {
+                    lane3Horse.increaseLoses();
+                }
             }
             //wait for 100 milliseconds
             try{
@@ -142,6 +164,12 @@ public class Race
         map.put(lane2Horse, lane2Horse.getConfidence());
         map.put(lane3Horse, lane3Horse.getConfidence());
 
+    }
+    public long getStartTime() {
+        return startTime;
+    }
+    public int getRaceLength() {
+        return raceLength;
     }
 
     /**
