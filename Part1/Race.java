@@ -157,10 +157,8 @@ public class Race
         if  (!theHorse.hasFallen())
         {
             //the probability that the horse will move forward depends on the confidence;
-            double random = Math.random();
-            if (random < theHorse.getConfidence())
+            if (Math.random() < theHorse.getConfidence())
             {
-                System.out.println(random);
                 theHorse.moveForward();
             }
 
@@ -274,13 +272,49 @@ public class Race
     public static void main(String[] args)
     {
         Race race = new Race(20);
-        Horse horse1 = new Horse('♘', "horse 1", 1);
-        Horse horse2 = new Horse('♕', "horse 2", 1);
-        Horse horse3 = new Horse('♟', "horse 3", 1);
+        Horse horse1 = new Horse('♘', "horse 1", 0.4);
+        Horse horse2 = new Horse('♕', "horse 2", 0.6);
+        Horse horse3 = new Horse('♟', "horse 3", 0.8);
 
         race.addHorse(horse1, 1);
         race.addHorse(horse2, 2);
         race.addHorse(horse3, 3);
+        File file = new File("mapData.txt");
+        if(file.exists())
+        {
+            try(BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line = reader.readLine();
+                double confidence1 = Double.parseDouble(line);
+                line = reader.readLine();
+                double confidence2 = Double.parseDouble(line);
+                line = reader.readLine();
+                double confidence3 = Double.parseDouble(line);
+                horse1.setConfidence(confidence1);
+                horse2.setConfidence(confidence2);
+                horse3.setConfidence(confidence3);
+            } catch (IOException e) {
+                System.out.println("Error reading from file");
+            }
+        }
+
         race.startRace();
+        HashMap<Horse, Double> map = race.getMap();
+        double confidence1 = map.get(horse1);
+        double confidence2 = map.get(horse2);
+        double confidence3 = map.get(horse3);
+
+        double roundedConfidence1 = Math.round(confidence1 * 10.0) / 10.0;
+        double roundedConfidence2 = Math.round(confidence2 * 10.0) / 10.0;
+        double roundedConfidence3 = Math.round(confidence3 * 10.0) / 10.0;
+
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter("mapData.txt"))) {
+            writer.write(String.valueOf(roundedConfidence1));
+            writer.newLine();
+            writer.write(String.valueOf(roundedConfidence2));
+            writer.newLine();
+            writer.write(String.valueOf(roundedConfidence3));
+        } catch (IOException e) {
+            System.out.println("Error writing to file");
+        }
     }
 }
