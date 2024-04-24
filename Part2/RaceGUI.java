@@ -191,14 +191,16 @@ public class RaceGUI extends JPanel {
             }
         });
         JMenuItem chooseColour = new JMenuItem("Choose Track Background Colour");
+        JMenuItem raceColour = new JMenuItem("Choose Race Colour");
         chooseColour.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                Color selectedColor = JColorChooser.showDialog(RaceGUI.this, "Choose Track Background Color", getBackground());
+                Color selectedColor = JColorChooser.showDialog(RaceGUI.this, "Choose Track Background Colour", getBackground());
                 if (selectedColor != null) {
                     setBackground(selectedColor);
                 }
             }
         });
+
 
         Customise_Track.add(Customise_Track_Length);
         Customise_Track_Length.addActionListener(new ActionListener() {
@@ -218,7 +220,16 @@ public class RaceGUI extends JPanel {
                 }
             }
         });
+        raceColour.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Color selectedColor = JColorChooser.showDialog(RaceGUI.this, "Choose Race Colour", getForeground());
+                if (selectedColor != null) {
+                    textArea.setForeground(selectedColor);
+                }
+            }
+        });
         Customise_Track.add(chooseColour);
+        Customise_Track.add(raceColour);
 
         Display_Statistics.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -448,7 +459,6 @@ public class RaceGUI extends JPanel {
         horse2 = new Horse('♕', "horse 2", 0.5, race);
         horse3 = new Horse('♔', "horse 3", 0.6, race);
 
-        // Remove horsePanel if it exists
         if (horsePanel.getParent() == RaceGUI.this) {
             remove(horsePanel);
             revalidate();
