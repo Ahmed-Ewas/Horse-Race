@@ -17,12 +17,13 @@ public class Horse
     private Race race;
     private int wins;
     private int loses;
+    private int index;
 
     //Constructor of class Horse
     /**
      * Constructor for objects of class Horse
      */
-    public Horse(char horseSymbol, String horseName, double horseConfidence, Race race)
+    public Horse(char horseSymbol, String horseName, double horseConfidence, Race race, int index)
     {
         this.horseSymbol = horseSymbol;
         this.horseName = horseName;
@@ -30,6 +31,7 @@ public class Horse
         this.distance_travelled = 0;
         this.fallen = false;
         this.race = race;
+        this.index = index;
     }
 
     //Other methods of class Horse
@@ -37,6 +39,9 @@ public class Horse
     {
         fallen = true;
         finishTime = System.currentTimeMillis();
+    }
+    public int getIndex() {
+        return index;
     }
 
     public double getConfidence()

@@ -179,6 +179,7 @@ public class Race
      *
      * @param theHorse the horse to be moved
      */
+
     private boolean moveHorse(Horse theHorse)
     {
         //if the horse has fallen it cannot move,
@@ -220,6 +221,23 @@ public class Race
         {
             return false;
         }
+    }
+    public String getRaceResult() {
+        StringBuilder result = new StringBuilder();
+
+        if (lane1Horse.hasFallen() && lane2Horse.hasFallen() && lane3Horse.hasFallen()) {
+            result.append("All horses have fallen. No winner has been declared.\n");
+        } else {
+            if (raceWonBy(lane1Horse)) {
+                result.append("The winner is ").append(lane1Horse.getName()).append("\n");
+            } else if (raceWonBy(lane2Horse)) {
+                result.append("The winner is ").append(lane2Horse.getName()).append("\n");
+            } else if (raceWonBy(lane3Horse)) {
+                result.append("The winner is ").append(lane3Horse.getName()).append("\n");
+            }
+        }
+
+        return result.toString();
     }
     private void updateGUI()
     {
@@ -298,7 +316,7 @@ public class Race
         //else print the horse's symbol
         if(theHorse.hasFallen())
         {
-            laneString.append('\u2322');
+            laneString.append('❌');
         }
         else
         {

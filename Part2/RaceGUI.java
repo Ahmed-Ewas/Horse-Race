@@ -2,7 +2,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.util.ArrayList;
 import javax.swing.*;
+import java.util.List;
 
 public class RaceGUI extends JPanel {
     private JTextArea textArea;
@@ -13,12 +15,29 @@ public class RaceGUI extends JPanel {
     private Color initialTrackColour;
     private JPanel horsePanel;
     private JTextArea horse1Field, horse2Field, horse3Field;
+    private double balance;
+    private JTextPane moneyField;
+    private boolean raceStarted = false;
+    private List<Bet> bets = new ArrayList<>();
+    private JPanel bettingPanel;
+    private JLabel horse1OddsLabel;
+    private JLabel horse2OddsLabel;
+    private JLabel horse3OddsLabel;
+
+    private class Bet {
+        int horseIndex;
+        double betAmount;
+
+        Bet(int horseIndex, double betAmount) {
+            this.horseIndex = horseIndex;
+            this.betAmount = betAmount;
+        }
+    }
 
     public RaceGUI() {
-        Character[] horseSymbols = {'♘', '♕','♔', '♖', '♗', '♙', '♚', '♛', '♜', '♝', '♞','♟'};
-        initialTrackColour = new Color(0x123456);
-        setLayout(new BorderLayout());
-        setBackground(initialTrackColour);
+        Character[] horseSymbols = {'♘', '♕', '♔', '♖', '♗', '♙', '♚', '♛', '♜', '♝', '♞', '♟'};
+        final double max_balance = 100.0;
+        balance = max_balance;
 
         textArea = new JTextArea();
         textArea.setFont(new Font("monospaced", Font.PLAIN, 17));
@@ -26,13 +45,27 @@ public class RaceGUI extends JPanel {
         textArea.setOpaque(false);
         textArea.setForeground(Color.WHITE);
 
+        race = new Race(30, textArea);
+
+        horse1 = new Horse('♘', "Horse 1", 0.4, race, 1 - 1);
+        horse2 = new Horse('♕', "Horse 2", 0.5, race, 2 - 1);
+        horse3 = new Horse('♔', "Horse 3", 0.6, race, 3 - 1);
+
+        initialTrackColour = new Color(0x123456);
+        setLayout(new BorderLayout());
+        setBackground(initialTrackColour);
+
         JScrollPane scrollPane = new JScrollPane(textArea);
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
         add(scrollPane, BorderLayout.CENTER);
         race = new Race(30, textArea);
         horsePanel = new JPanel();
+        bettingPanel = new JPanel();
 
+        horse1OddsLabel = new JLabel();
+        horse2OddsLabel = new JLabel();
+        horse3OddsLabel = new JLabel();
 
         horse1Field = new JTextArea();
         horse2Field = new JTextArea();
@@ -84,13 +117,29 @@ public class RaceGUI extends JPanel {
         menuBar.add(Customise);
         menuBar.add(Customise_Track);
         menuBar.add(Statistics);
+
         add(menuBar, BorderLayout.NORTH);
+        Horse[] horses = {horse1, horse2, horse3};
+        for (Horse horse : horses) {
+            JButton betButton = new JButton("Bet on " + horse.getName());
+            betButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    placeBet(horse);
+                }
+            });
+            bettingPanel.add(betButton);
+        }
+        moneyField = new JTextPane();
+        moneyField.setText("Balance: " + max_balance);
+        moneyField.setEditable(false);
+        bettingPanel.add(moneyField);
+        add(bettingPanel, BorderLayout.WEST);
 
         //Horse 1
         Customise_Horse1_Confidence.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (horse1 == null) {
-                    horse1 = new Horse('♘', "horse 1", 0.4, race);
+                    horse1 = new Horse('♘', "horse 1", 0.4, race, 1 - 1);
                 }
                 double confidence = getConfidence("Enter confidence for horse 1:");
                 horse1.setConfidence(confidence);
@@ -125,7 +174,7 @@ public class RaceGUI extends JPanel {
         Customise_Horse2_Confidence.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (horse2 == null) {
-                    horse2 = new Horse('♕', "horse 2", 0.5, race);
+                    horse2 = new Horse('♕', "horse 2", 0.5, race, 2 - 1);
                 }
                 double confidence = getConfidence("Enter confidence for horse 2:");
                 horse2.setConfidence(confidence);
@@ -160,7 +209,7 @@ public class RaceGUI extends JPanel {
         Customise_Horse3_Confidence.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (horse3 == null) {
-                    horse3 = new Horse('♔', "horse 3", 0.6, race);
+                    horse3 = new Horse('♔', "horse 3", 0.6, race, 3 - 1);
                 }
                 double confidence = getConfidence("Enter confidence for horse 3:");
                 horse3.setConfidence(confidence);
@@ -279,6 +328,103 @@ public class RaceGUI extends JPanel {
             }
         });
     }
+
+    private void raceEnded() {
+        raceStarted = false;
+        calculateRewards();
+        enableBetButtons();
+
+        JButton horse1BetButton = (JButton) bettingPanel.getComponent(0);
+        JButton horse2BetButton = (JButton) bettingPanel.getComponent(1);
+        JButton horse3BetButton = (JButton) bettingPanel.getComponent(2);
+        updateOdds(horse1, horse1BetButton);
+        updateOdds(horse2, horse2BetButton);
+        updateOdds(horse3, horse3BetButton);
+    }
+
+    private void placeBet(Horse horse) {
+        if (raceStarted) {
+            JOptionPane.showMessageDialog(null, "Betting is closed. Race has already started.");
+            return;
+        }
+
+        double bet = getBetAmount();
+        if (bet > balance) {
+            JOptionPane.showMessageDialog(null, "You do not have enough money to place this bet");
+            return;
+        } else if (bet < 0) {
+            JOptionPane.showMessageDialog(null, "You cannot bet a negative amount");
+            return;
+        }
+
+        balance -= bet;
+        bets.add(new Bet(horse.getIndex(), bet));
+        updateBalanceDisplay();
+        JOptionPane.showMessageDialog(null, "Bet placed on " + horse.getName() + " for " + String.format("%.2f", bet));
+    }
+
+    private void disableBetButtons() {
+        for (Component component : bettingPanel.getComponents()) {
+            if (component instanceof JButton) {
+                JButton betButton = (JButton) component;
+                betButton.setEnabled(false);
+            }
+        }
+    }
+
+    private void enableBetButtons() {
+        for (Component component : bettingPanel.getComponents()) {
+            if (component instanceof JButton) {
+                JButton betButton = (JButton) component;
+                betButton.setEnabled(true);
+            }
+        }
+    }
+
+    private void calculateRewards() {
+        String result = race.getRaceResult();
+        Horse[] horses = {horse1, horse2, horse3};
+
+        for (Bet bet : bets) {
+            double betAmount = bet.betAmount;
+            int horseIndex = bet.horseIndex;
+            double confidence = horses[horseIndex].getConfidence();
+            double winRatio = horses[horseIndex].getWinRatio();
+            double odds = confidence / (winRatio + 0.0001);
+            double winnings = betAmount * odds;
+
+            if (winnings > 0 && result.contains(String.valueOf(horseIndex + 1))) {
+                balance = balance + winnings; // Only add the winnings, not the original bet amount
+                JOptionPane.showMessageDialog(null, "You have won " + String.format("%.2f", winnings) + " on horse " + (horseIndex + 1) + "!");
+            } else {
+                JOptionPane.showMessageDialog(null, "Your bet on horse " + (horseIndex + 1) + " has lost.");
+            }
+        }
+        bets.clear();
+        updateBalanceDisplay();
+    }
+
+    private double getBetAmount() {
+        while (true) {
+            try {
+                String input = JOptionPane.showInputDialog("Enter bet amount:");
+                if (input == null) {
+                    return 0.0;
+                }
+                double bet = Double.parseDouble(input.trim());
+                return bet;
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid number");
+            }
+        }
+    }
+
+    private void updateBalanceDisplay() {
+        String formattedBalance = String.format("%.2f", balance);
+        moneyField.setText("Balance: " + formattedBalance);
+    }
+
+
     private void showRecords() {
         JDialog dialog = new JDialog();
         dialog.setTitle("Race Records");
@@ -309,6 +455,12 @@ public class RaceGUI extends JPanel {
         dialog.setVisible(true);
     }
 
+    private void startRace() {
+        raceStarted = true;
+        disableBetButtons();
+        race.startRace();
+    }
+
     private void showStatistics() {
         JDialog dialog = new JDialog();
         String DNF = "DNF";
@@ -320,7 +472,7 @@ public class RaceGUI extends JPanel {
         JPanel statsPanel = new JPanel(new GridLayout(3, 1));
 
         long startTime = race.getStartTime();
-        // Calculate race time for each horse
+
         long horse1FinishTime = horse1.getFinishTime();
         long horse2FinishTime = horse2.getFinishTime();
         long horse3FinishTime = horse3.getFinishTime();
@@ -379,9 +531,9 @@ public class RaceGUI extends JPanel {
         double horse2SpeedRounded = Math.round(horse2Speed * 100.0) / 100.0;
         double horse3SpeedRounded = Math.round(horse3Speed * 100.0) / 100.0;
 
-        JTextArea horse1Label = new JTextArea(horse1.getName() + ":\nRace time- " + (horse1Time >= 0 ? horse1TimeRounded + " seconds" : "DNF") + "\nAverage speed- " + (horse1Speed >= 0 ? horse1SpeedRounded + " m/s" : "N/A"));
-        JTextArea horse2Label = new JTextArea(horse2.getName() + ":\nRace time- " + (horse2Time >= 0 ? horse2TimeRounded + " seconds" : "DNF") + "\nAverage speed- " + (horse2Speed >= 0 ? horse2SpeedRounded + " m/s" : "N/A"));
-        JTextArea horse3Label = new JTextArea(horse3.getName() + ":\nRace time- " + (horse3Time >= 0 ? horse3TimeRounded + " seconds" : "DNF") + "\nAverage speed- " + (horse3Speed >= 0 ? horse3SpeedRounded + " m/s" : "N/A"));
+        JTextArea horse1Label = new JTextArea(horse1.getName() + ":\nRace time- " + (horse1Time >= 0 ? horse1TimeRounded + " seconds" : DNF) + "\nAverage speed- " + (horse1Speed >= 0 ? horse1SpeedRounded + " m/s" : "N/A"));
+        JTextArea horse2Label = new JTextArea(horse2.getName() + ":\nRace time- " + (horse2Time >= 0 ? horse2TimeRounded + " seconds" : DNF) + "\nAverage speed- " + (horse2Speed >= 0 ? horse2SpeedRounded + " m/s" : "N/A"));
+        JTextArea horse3Label = new JTextArea(horse3.getName() + ":\nRace time- " + (horse3Time >= 0 ? horse3TimeRounded + " seconds" : DNF) + "\nAverage speed- " + (horse3Speed >= 0 ? horse3SpeedRounded + " m/s" : "N/A"));
         horse1Label.setFont(new Font("Arial", Font.PLAIN, 15));
         horse2Label.setFont(new Font("Arial", Font.PLAIN, 15));
         horse3Label.setFont(new Font("Arial", Font.PLAIN, 15));
@@ -420,7 +572,7 @@ public class RaceGUI extends JPanel {
     }
 
     public void startRaceGUI() {
-        if (horsePanel.getParent() == RaceGUI.this) {
+        if (horsePanel != null && horsePanel.getParent() == RaceGUI.this) {
             remove(horsePanel);
             revalidate();
             repaint();
@@ -429,13 +581,13 @@ public class RaceGUI extends JPanel {
             race = new Race(30, textArea);
         }
         if (horse1 == null) {
-            horse1 = new Horse('♘', "horse 1", 0.4, race);
+            horse1 = new Horse('♘', "horse 1", 0.4, race, 1 - 1);
         }
         if (horse2 == null) {
-            horse2 = new Horse('♕', "horse 2", 0.5, race);
+            horse2 = new Horse('♕', "horse 2", 0.5, race, 2 - 1);
         }
         if (horse3 == null) {
-            horse3 = new Horse('♔', "horse 3", 0.6, race);
+            horse3 = new Horse('♔', "horse 3", 0.6, race, 3 - 1);
         }
         horse1.setSymbol('♘');
         horse2.setSymbol('♕');
@@ -446,18 +598,33 @@ public class RaceGUI extends JPanel {
         race.addHorse(horse3, 3);
         loadHorseDataFromFile();
 
-        race.startRace();
+        startRace();
+        raceEnded();
         saveHorseDataToFile();
     }
-
-
+    private void updateOdds(Horse horse, JButton betButton) {
+        double winRatio = horse.getWinRatio();
+        if (winRatio == 0) {
+            betButton.setText("Bet on " + horse.getName() + " (Odds: N/A)");
+        }
+        else{
+            int odds = (int) Math.round(1 / winRatio);
+            betButton.setText("Bet on " + horse.getName() + " (Odds: " + odds + "/1)");
+        }
+    }
 
     private void resetRace() {
-        textArea.setText(" ");
+        if (raceStarted) {
+            JOptionPane.showMessageDialog(null, "Cannot reset race while it's ongoing.");
+            return;
+        }
+        raceEnded();
+        enableBetButtons();
+        textArea.setText("");
         race = new Race(30, textArea);
-        horse1 = new Horse('♘', "horse 1", 0.4, race);
-        horse2 = new Horse('♕', "horse 2", 0.5, race);
-        horse3 = new Horse('♔', "horse 3", 0.6, race);
+        horse1 = new Horse('♘', "horse 1", 0.4, race, 1 - 1);
+        horse2 = new Horse('♕', "horse 2", 0.5, race, 2 - 1);
+        horse3 = new Horse('♔', "horse 3", 0.6, race, 3 - 1);
 
         if (horsePanel.getParent() == RaceGUI.this) {
             remove(horsePanel);
