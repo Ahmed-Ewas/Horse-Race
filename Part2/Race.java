@@ -11,8 +11,7 @@ import java.lang.Math;
  * @author McFarewell
  * @version 1.0
  */
-public class Race
-{
+public class Race {
     private int raceLength;
     private Horse lane1Horse;
     private Horse lane2Horse;
@@ -21,31 +20,25 @@ public class Race
 
     private JTextArea textArea;
     private long startTime;
+
     /**
      * Constructor for objects of class Race
      * Initially there are no horses in the lanes
      *
      * @param distance the length of the racetrack (in metres/yards...)
      */
-    public Race(int distance)
-    {
-        // initialise instance variables
-        raceLength = distance;
-        lane1Horse = null;
-        lane2Horse = null;
-        lane3Horse = null;
-    public Race(int distance, JTextArea textArea)
-    {
+    public Race(int distance, JTextArea textArea) {
         this.raceLength = distance;
         lane1Horse = null;
         lane2Horse = null;
         lane3Horse = null;
         this.textArea = textArea;
     }
-    public HashMap<Horse, Double> getMap()
-    {
+
+    public HashMap<Horse, Double> getMap() {
         return this.map;
     }
+
     public void setRaceLength(int length) {
         this.raceLength = length;
     }
@@ -53,25 +46,17 @@ public class Race
     /**
      * Adds a horse to the race in a given lane
      *
-     * @param theHorse the horse to be added to the race
+     * @param theHorse   the horse to be added to the race
      * @param laneNumber the lane that the horse will be added to
      */
-    public void addHorse(Horse theHorse, int laneNumber)
-    {
-        if (laneNumber == 1)
-        {
+    public void addHorse(Horse theHorse, int laneNumber) {
+        if (laneNumber == 1) {
             lane1Horse = theHorse;
-        }
-        else if (laneNumber == 2)
-        {
+        } else if (laneNumber == 2) {
             lane2Horse = theHorse;
-        }
-        else if (laneNumber == 3)
-        {
+        } else if (laneNumber == 3) {
             lane3Horse = theHorse;
-        }
-        else
-        {
+        } else {
             System.out.println("Cannot add horse to lane " + laneNumber + " because there is no such lane");
         }
     }
@@ -82,8 +67,7 @@ public class Race
      * then repeatedly moved forward until the
      * race is finished
      */
-    public void startRace()
-    {
+    public void startRace() {
         //declare a local variable to tell us when the race is finished
         startTime = System.currentTimeMillis();
         boolean finished = false;
@@ -92,8 +76,7 @@ public class Race
         lane1Horse.goBackToStart();
         lane2Horse.goBackToStart();
         lane3Horse.goBackToStart();
-        while (!finished)
-        {
+        while (!finished) {
             //move each horse
             moveHorse(lane1Horse);
             moveHorse(lane2Horse);
@@ -108,8 +91,7 @@ public class Race
             printRace();
 
             //if any of the three horses has won the race is finished
-            if ( raceWonBy(lane1Horse) || raceWonBy(lane2Horse) || raceWonBy(lane3Horse) )
-            {
+            if (raceWonBy(lane1Horse) || raceWonBy(lane2Horse) || raceWonBy(lane3Horse)) {
                 finished = true;
             }
             if (raceWonBy(lane1Horse)) {
@@ -122,8 +104,7 @@ public class Race
                 winner = lane3Horse.getName();
                 lane3Horse.setConfidence(lane3Horse.getConfidence() + 0.1);
             }
-            if(lane1Horse.hasFallen() && lane2Horse.hasFallen() && lane3Horse.hasFallen())
-            {
+            if (lane1Horse.hasFallen() && lane2Horse.hasFallen() && lane3Horse.hasFallen()) {
                 System.out.println("All horses have fallen. ");
                 System.out.println("No winner has been declared. ");
                 lane1Horse.increaseWins();
@@ -136,8 +117,7 @@ public class Race
                 lane3Horse.setConfidence(lane3Horse.getConfidence() + 0.1);
                 lane3Horse.increaseWins();
             }
-            if(lane1Horse.hasFallen() && lane2Horse.hasFallen() && lane3Horse.hasFallen())
-            {
+            if (lane1Horse.hasFallen() && lane2Horse.hasFallen() && lane3Horse.hasFallen()) {
                 //System.out.println("All horses have fallen. ");
                 //System.out.println("No winner has been declared. ");
                 lane1Horse.setConfidence(lane1Horse.getConfidence() - 0.1);
@@ -151,37 +131,31 @@ public class Race
                 lane3Horse.increaseLoses();
                 return;
             }
-            if(finished)
-            {
-                if(lane1Horse.hasFallen())
-                {
+            if (finished) {
+                if (lane1Horse.hasFallen()) {
                     lane1Horse.setConfidence(lane1Horse.getConfidence() - 0.1);
                 }
-                if(lane2Horse.hasFallen())
-                {
+                if (lane2Horse.hasFallen()) {
                     lane2Horse.setConfidence(lane2Horse.getConfidence() - 0.1);
                 }
-                if(lane3Horse.hasFallen())
-                {
+                if (lane3Horse.hasFallen()) {
                     lane3Horse.setConfidence(lane3Horse.getConfidence() - 0.1);
                 }
-                if(!raceWonBy(lane1Horse))
-                {
+                if (!raceWonBy(lane1Horse)) {
                     lane1Horse.increaseLoses();
                 }
-                if(!raceWonBy(lane2Horse))
-                {
+                if (!raceWonBy(lane2Horse)) {
                     lane2Horse.increaseLoses();
                 }
-                if(!raceWonBy(lane3Horse))
-                {
+                if (!raceWonBy(lane3Horse)) {
                     lane3Horse.increaseLoses();
                 }
             }
             //wait for 100 milliseconds
-            try{
+            try {
                 TimeUnit.MILLISECONDS.sleep(100);
-            }catch(Exception e){}
+            } catch (Exception e) {
+            }
         }
         System.out.println("The winner is " + winner);
         //System.out.println("The winner is " + winner);
@@ -190,9 +164,11 @@ public class Race
         map.put(lane3Horse, lane3Horse.getConfidence());
 
     }
+
     public long getStartTime() {
         return startTime;
     }
+
     public int getRaceLength() {
         return raceLength;
     }
@@ -204,42 +180,20 @@ public class Race
      *
      * @param theHorse the horse to be moved
      */
-    private void moveHorse(Horse theHorse)
-
-    private boolean moveHorse(Horse theHorse)
-    {
+    private boolean moveHorse(Horse theHorse) {
         //if the horse has fallen it cannot move,
         //so only run if it has not fallen
 
-        if  (!theHorse.hasFallen())
-        {
-            //the probability that the horse will move forward depends on the confidence;
-            if (Math.random() < theHorse.getConfidence())
-            {
-                theHorse.moveForward();
-            }
-
-            //the probability that the horse will fall is very small (max is 0.1)
-            //but will also will depends exponentially on confidence
-            //so if you double the confidence, the probability that it will fall is *2
-            if (Math.random() < (0.1*theHorse.getConfidence()*theHorse.getConfidence()))
-            {
-                theHorse.fall();
-            }
-        }
+        if (!theHorse.hasFallen()) {
             double rand = Math.random();
-            if (rand < (0.1*theHorse.getConfidence()*theHorse.getConfidence()))
-            {
+            if (rand < (0.1 * theHorse.getConfidence() * theHorse.getConfidence())) {
                 theHorse.fall();
                 updateGUI();
-            }
-            else if (rand < theHorse.getConfidence())
-            {
+            } else if (rand < theHorse.getConfidence()) {
                 theHorse.moveForward();
                 updateGUI();
                 return true;
             }
-
         }
         return false;
     }
@@ -250,17 +204,14 @@ public class Race
      * @param theHorse The horse we are testing
      * @return true if the horse has won, false otherwise.
      */
-    private boolean raceWonBy(Horse theHorse)
-    {
-        if (theHorse.getDistanceTravelled() == raceLength)
-        {
+    private boolean raceWonBy(Horse theHorse) {
+        if (theHorse.getDistanceTravelled() == raceLength) {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
+
     public String getRaceResult() {
         StringBuilder result = new StringBuilder();
 
@@ -278,8 +229,8 @@ public class Race
 
         return result.toString();
     }
-    private void updateGUI()
-    {
+
+    private void updateGUI() {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 StringBuilder raceString = new StringBuilder();
@@ -308,30 +259,29 @@ public class Race
     /***
      * Print the race on the terminal
      */
-    private void printRace()
-    {
+    private void printRace() {
         System.out.print('\u000C');  //clear the terminal window
 
-        multiplePrint('=',raceLength+3); //top edge of track
+        multiplePrint('=', raceLength + 3); //top edge of track
         System.out.println();
 
         printLane(lane1Horse);
-        System.out.print(" " + lane1Horse.getName()+" (Current confidence: "+lane1Horse.getConfidence()+")");
+        System.out.print(" " + lane1Horse.getName() + " (Current confidence: " + lane1Horse.getConfidence() + ")");
         System.out.println();
 
         printLane(lane2Horse);
-        System.out.print(" " + lane2Horse.getName()+" (Current confidence: "+lane2Horse.getConfidence()+")");
+        System.out.print(" " + lane2Horse.getName() + " (Current confidence: " + lane2Horse.getConfidence() + ")");
         System.out.println();
 
         printLane(lane3Horse);
-        System.out.print(" " + lane3Horse.getName()+" (Current confidence: "+lane3Horse.getConfidence()+")");
+        System.out.print(" " + lane3Horse.getName() + " (Current confidence: " + lane3Horse.getConfidence() + ")");
         System.out.println();
 
-        multiplePrint('=',raceLength+3); //bottom edge of track
+        multiplePrint('=', raceLength + 3); //bottom edge of track
         System.out.println();
         //System.out.print('\u000C');  //clear the terminal window
 
-        multiplePrint('=',raceLength+3); //top edge of track
+        multiplePrint('=', raceLength + 3); //top edge of track
         //System.out.println();
 
         printLane(lane1Horse);
@@ -346,22 +296,18 @@ public class Race
         //System.out.print(" " + lane3Horse.getName()+" (Current confidence: "+lane3Horse.getConfidence()+")");
         //System.out.println();
 
-        multiplePrint('=',raceLength+3); //bottom edge of track
+        multiplePrint('=', raceLength + 3); //bottom edge of track
         //System.out.println();
     }
 
     /**
      * print a horse's lane during the race
      * for example
-     * |           X                      |
      * to show how far the horse has run
      */
-    private void printLane(Horse theHorse)
-    {
-        //calculate how many spaces are needed before
-        //and after the horse
-    private String printLane(Horse theHorse)
-    {
+    //calculate how many spaces are needed before
+    //and after the horse
+    private String printLane(Horse theHorse) {
         //calculate how many spaces are needed before
         //and after the horse
         StringBuilder laneString = new StringBuilder();
@@ -369,40 +315,21 @@ public class Race
         int spacesAfter = raceLength - theHorse.getDistanceTravelled();
 
         //print a | for the beginning of the lane
-        System.out.print('|');
-
-        //print the spaces before the horse
-        multiplePrint(' ',spacesBefore);
         laneString.append('|');
 
         //print the spaces before the horse
-        laneString.append(multiplePrint(' ',spacesBefore));
+        laneString.append(multiplePrint(' ', spacesBefore));
 
         //if the horse has fallen then print dead
         //else print the horse's symbol
-        if(theHorse.hasFallen())
-        {
-            System.out.print('\u2322');
-        }
-        else
-        {
-            System.out.print(theHorse.getSymbol());
-        }
-
-        //print the spaces after the horse
-        multiplePrint(' ',spacesAfter);
-
-        //print the | for the end of the track
-        System.out.print('|');
+        if (theHorse.hasFallen()) {
             laneString.append('❌');
-        }
-        else
-        {
+        } else {
             laneString.append(theHorse.getSymbol());
         }
 
         //print the spaces after the horse
-        laneString.append(multiplePrint(' ',spacesAfter));
+        laneString.append(multiplePrint(' ', spacesAfter));
 
         //print the | for the end of the track
         laneString.append('|');
@@ -416,17 +343,17 @@ public class Race
      *
      * @param aChar the character to Print
      */
-    private void multiplePrint(char aChar, int times)
-    {
+    private String multiplePrint(char aChar, int times) {
+        StringBuilder result = new StringBuilder();
         int i = 0;
-        while (i < times)
-        {
-            System.out.print(aChar);
+        while (i < times) {
+            result.append(aChar);
             i = i + 1;
         }
+        return result.toString();
     }
-    public static void main(String[] args)
-    {
+
+    public static void main(String[] args) {
         Race race = new Race(20);
         Horse horse1 = new Horse('♘', "horse 1", 0.4);
         Horse horse2 = new Horse('♕', "horse 2", 0.6);
@@ -436,9 +363,8 @@ public class Race
         race.addHorse(horse2, 2);
         race.addHorse(horse3, 3);
         File file = new File("mapData.txt");
-        if(file.exists())
-        {
-            try(BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        if (file.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 String line = reader.readLine();
                 double confidence1 = Double.parseDouble(line);
                 line = reader.readLine();
@@ -463,7 +389,7 @@ public class Race
         double roundedConfidence2 = Math.round(confidence2 * 10.0) / 10.0;
         double roundedConfidence3 = Math.round(confidence3 * 10.0) / 10.0;
 
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter("mapData.txt"))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("mapData.txt"))) {
             writer.write(String.valueOf(roundedConfidence1));
             writer.newLine();
             writer.write(String.valueOf(roundedConfidence2));
@@ -472,21 +398,5 @@ public class Race
         } catch (IOException e) {
             System.out.println("Error writing to file");
         }
-    }
-}
-    private String multiplePrint(char aChar, int times)
-    {
-        StringBuilder result = new StringBuilder();
-        int i = 0;
-        while (i < times)
-        {
-            result.append(aChar);
-            i = i + 1;
-        }
-        return result.toString();
-    }
-    public static void main(String[] args)
-    {
-
     }
 }

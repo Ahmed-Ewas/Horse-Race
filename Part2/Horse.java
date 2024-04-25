@@ -13,20 +13,16 @@ public class Horse
     private int distance_travelled;
     private boolean fallen;
     private double horseConfidence;
-<<<<<<< HEAD:Part1/Horse.java
-=======
     private long finishTime;
     private Race race;
     private int wins;
     private int loses;
     private int index;
->>>>>>> gui-development:Part2/Horse.java
 
     //Constructor of class Horse
     /**
      * Constructor for objects of class Horse
      */
-    public Horse(char horseSymbol, String horseName, double horseConfidence)
     public Horse(char horseSymbol, String horseName, double horseConfidence, Race race, int index)
     {
         this.horseSymbol = horseSymbol;
@@ -34,10 +30,6 @@ public class Horse
         this.horseConfidence = horseConfidence;
         this.distance_travelled = 0;
         this.fallen = false;
-    }
-
-
-
         this.race = race;
         this.index = index;
     }
@@ -136,6 +128,7 @@ public class Horse
         System.out.println(horse.hasFallen());
         horse.fall();
         System.out.println(horse.hasFallen());
+    }
     public void increaseWins()
     {
         wins++;
@@ -158,28 +151,5 @@ public class Horse
     public int getLosses()
     {
         return loses;
-    }
-    public static void main(String[] args)
-    {
-        Horse horse = new Horse('*', "ahmed", 0.2);
-        //Test 1
-        horse.moveForward();
-        horse.moveForward();
-        System.out.println(horse.getDistanceTravelled()+"m");
-        horse.goBackToStart();
-        System.out.println(horse.getDistanceTravelled()+"m");
-
-        System.out.println();
-        //Test 2
-        horse.setConfidence(1.8);
-        horse.setSymbol('#');
-        System.out.println(horse.getConfidence());
-        System.out.println(horse.getSymbol());
-
-        System.out.println();
-        //Test 3
-        System.out.println(horse.hasFallen());
-        horse.fall();
-        System.out.println(horse.hasFallen());
     }
 }
