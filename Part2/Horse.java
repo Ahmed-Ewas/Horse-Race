@@ -13,12 +13,21 @@ public class Horse
     private int distance_travelled;
     private boolean fallen;
     private double horseConfidence;
+<<<<<<< HEAD:Part1/Horse.java
+=======
+    private long finishTime;
+    private Race race;
+    private int wins;
+    private int loses;
+    private int index;
+>>>>>>> gui-development:Part2/Horse.java
 
     //Constructor of class Horse
     /**
      * Constructor for objects of class Horse
      */
     public Horse(char horseSymbol, String horseName, double horseConfidence)
+    public Horse(char horseSymbol, String horseName, double horseConfidence, Race race, int index)
     {
         this.horseSymbol = horseSymbol;
         this.horseName = horseName;
@@ -29,10 +38,18 @@ public class Horse
 
 
 
+        this.race = race;
+        this.index = index;
+    }
+
     //Other methods of class Horse
     public void fall()
     {
         fallen = true;
+        finishTime = System.currentTimeMillis();
+    }
+    public int getIndex() {
+        return index;
     }
 
     public double getConfidence()
@@ -48,6 +65,9 @@ public class Horse
     public String getName()
     {
         return horseName;
+    }
+    public void setName(String name) {
+        horseName = name;
     }
 
     public char getSymbol()
@@ -69,12 +89,21 @@ public class Horse
     public void moveForward()
     {
         distance_travelled = distance_travelled + 1;
+        if(distance_travelled == race.getRaceLength())
+        {
+            finishTime = System.currentTimeMillis();
+        }
+    }
+    public long getFinishTime()
+    {
+        return finishTime;
     }
 
     public void setConfidence(double newConfidence) {
         if (newConfidence < 0) {
             this.horseConfidence = 0;
         } else if (newConfidence > 1) {
+        } else if (newConfidence >= 1) {
             this.horseConfidence = 1;
         } else {
             this.horseConfidence = newConfidence;
@@ -107,5 +136,31 @@ public class Horse
         System.out.println(horse.hasFallen());
         horse.fall();
         System.out.println(horse.hasFallen());
+    public void increaseWins()
+    {
+        wins++;
+    }
+    public void increaseLoses()
+    {
+        loses++;
+    }
+    public double getWinRatio() {
+        int totalRaces = wins + loses;
+        if (totalRaces == 0) {
+            return 0;
+        }
+        return (double) wins / totalRaces;
+    }
+    public int getWins()
+    {
+        return wins;
+    }
+    public int getLosses()
+    {
+        return loses;
+    }
+    public static void main(String[] args)
+    {
+
     }
 }
